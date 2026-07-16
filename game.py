@@ -19,6 +19,10 @@ player_col = 0
 collect_row = 0
 collect_col = 0
 
+# Hazard position (row, column)
+hazard_row = 0
+hazard_col = 0
+
 # Score
 score = 0
 
@@ -31,6 +35,18 @@ def spawn_collectible() -> None:
         collect_row = random.randint(0, GRID_SIZE - 1)
         collect_col = random.randint(0, GRID_SIZE - 1)
         if collect_row != player_row or collect_col != player_col:
+            break
+
+
+def spawn_hazard() -> None:
+    """Place the hazard at a random position that is not the player or collectible."""
+    global hazard_row, hazard_col
+
+    while True:
+        hazard_row = random.randint(0, GRID_SIZE - 1)
+        hazard_col = random.randint(0, GRID_SIZE - 1)
+        if (hazard_row, hazard_col) != (player_row, player_col) and \
+           (hazard_row, hazard_col) != (collect_row, collect_col):
             break
 
 
@@ -47,6 +63,8 @@ def draw_grid() -> None:
                 row_str += "@ "
             elif row == collect_row and col == collect_col:
                 row_str += "$ "
+            elif row == hazard_row and col == hazard_col:
+                row_str += "X "
             else:
                 row_str += ". "
         print(f"{row} {row_str}")
@@ -75,6 +93,11 @@ def check_collect() -> None:
         spawn_collectible()
 
 
+def check_hazard() -> bool:
+    """Check if the player is on the hazard."""
+    return player_row == hazard_row and player_col == hazard_col
+
+
 def main() -> None:
     """Main game loop."""
     print("Welcome! You are @ on the grid.")
@@ -82,6 +105,9 @@ def main() -> None:
 
     # Spawn the first collectible
     spawn_collectible()
+
+    # Spawn the hazard
+    spawn_hazard()
 
     while True:
         # Clear the screen
@@ -101,6 +127,14 @@ def main() -> None:
             break
         elif command in ("w", "a", "s", "d"):
             move(command)
+
+            if check_hazard():
+                os.system("clear")
+                draw_grid()
+                print()
+                print("Game Over!")
+                break
+
             check_collect()
 
             if score == WIN_SCORE:

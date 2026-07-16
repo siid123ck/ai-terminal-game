@@ -3,7 +3,7 @@ Tests for the game grid, movement, collectibles, and scoring.
 """
 
 import game
-from game import GRID_SIZE, WIN_SCORE, move, spawn_collectible, check_collect
+from game import GRID_SIZE, WIN_SCORE, move, spawn_collectible, check_collect, spawn_hazard, check_hazard
 
 
 def reset_game() -> None:
@@ -12,6 +12,7 @@ def reset_game() -> None:
     game.player_col = 0
     game.score = 0
     spawn_collectible()
+    spawn_hazard()
 
 
 # --- Grid tests ---
@@ -161,3 +162,50 @@ def test_check_collect_no_score_if_not_on_collectible() -> None:
     game.collect_col = 4
     check_collect()
     assert game.score == 0
+
+
+# --- Hazard tests ---
+
+def test_hazard_spawns_not_on_player() -> None:
+    """Hazard should never spawn on the player."""
+    reset_game()
+    for _ in range(50):
+        spawn_hazard()
+        assert (game.hazard_row, game.hazard_col) != (game.player_row, game.player_col)
+
+
+def test_hazard_spawns_not_on_collectible() -> None:
+    """Hazard should never spawn on the collectible."""
+    reset_game()
+    for _ in range(50):
+        spawn_hazard()
+        assert (game.hazard_row, game.hazard_col) != (game.collect_row, game.collect_col)
+
+
+def test_hazard_spawns_within_grid() -> None:
+    """Hazard should always be within grid bounds."""
+    reset_game()
+    for _ in range(50):
+        spawn_hazard()
+        assert 0 <= game.hazard_row < GRID_SIZE
+        assert 0 <= game.hazard_col < GRID_SIZE
+
+
+def test_check_hazard_true_when_player_on_hazard() -> None:
+    """check_hazard should return True when player lands on the hazard."""
+    reset_game()
+    game.player_row = 2
+    game.player_col = 3
+    game.hazard_row = 2
+    game.hazard_col = 3
+    assert check_hazard() is True
+
+
+def test_check_hazard_false_when_player_not_on_hazard() -> None:
+    """check_hazard should return False when player is not on the hazard."""
+    reset_game()
+    game.player_row = 0
+    game.player_col = 0
+    game.hazard_row = 4
+    game.hazard_col = 4
+    assert check_hazard() is False
