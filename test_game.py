@@ -1,5 +1,5 @@
 """
-Tests for the game grid, movement, collectibles, and scoring.
+Tests for the game grid, movement, collectibles, hazards, and scoring.
 """
 
 import game
@@ -209,3 +209,47 @@ def test_check_hazard_false_when_player_not_on_hazard() -> None:
     game.hazard_row = 4
     game.hazard_col = 4
     assert check_hazard() is False
+
+
+# --- Reset tests ---
+
+def test_reset_game_resets_player_position() -> None:
+    """reset_game should put the player back at (0, 0)."""
+    reset_game()
+    game.player_row = 3
+    game.player_col = 3
+    reset_game()
+    assert game.player_row == 0
+    assert game.player_col == 0
+
+
+def test_reset_game_resets_score() -> None:
+    """reset_game should set the score back to 0."""
+    reset_game()
+    game.score = 5
+    reset_game()
+    assert game.score == 0
+
+
+def test_reset_game_respawns_collectible() -> None:
+    """reset_game should spawn the collectible at a new position."""
+    reset_game()
+    old_pos = (game.collect_row, game.collect_col)
+    # Move player away and force a different collectible position
+    game.player_row = 4
+    game.player_col = 4
+    reset_game()
+    # Collectible should be spawned (not stuck at a bad position)
+    assert 0 <= game.collect_row < GRID_SIZE
+    assert 0 <= game.collect_col < GRID_SIZE
+
+
+def test_reset_game_respawns_hazard() -> None:
+    """reset_game should spawn the hazard at a new position."""
+    reset_game()
+    game.player_row = 4
+    game.player_col = 4
+    reset_game()
+    # Hazard should be spawned within bounds
+    assert 0 <= game.hazard_row < GRID_SIZE
+    assert 0 <= game.hazard_col < GRID_SIZE

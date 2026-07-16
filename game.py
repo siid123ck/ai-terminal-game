@@ -27,6 +27,16 @@ hazard_col = 0
 score = 0
 
 
+def reset_game() -> None:
+    """Reset all game state to defaults."""
+    global player_row, player_col, score
+    player_row = 0
+    player_col = 0
+    score = 0
+    spawn_collectible()
+    spawn_hazard()
+
+
 def spawn_collectible() -> None:
     """Place the collectible at a random position that is not the player."""
     global collect_row, collect_col
@@ -34,7 +44,7 @@ def spawn_collectible() -> None:
     while True:
         collect_row = random.randint(0, GRID_SIZE - 1)
         collect_col = random.randint(0, GRID_SIZE - 1)
-        if collect_row != player_row or collect_col != player_col:
+        if (collect_row, collect_col) != (player_row, player_col):
             break
 
 
@@ -51,7 +61,7 @@ def spawn_hazard() -> None:
 
 
 def draw_grid() -> None:
-    """Draw the grid with the player marked as @ and collectible as $."""
+    """Draw the grid with the player, collectible, and hazard."""
     # Print column numbers
     print("  " + " ".join(str(i) for i in range(GRID_SIZE)))
 
@@ -70,7 +80,7 @@ def draw_grid() -> None:
         print(f"{row} {row_str}")
 
 
-def move(direction: str) -> bool:
+def move(direction: str) -> None:
     """Move the player in the given direction, if within bounds."""
     global player_row, player_col
 
@@ -98,16 +108,9 @@ def check_hazard() -> bool:
     return player_row == hazard_row and player_col == hazard_col
 
 
-def main() -> None:
-    """Main game loop."""
-    print("Welcome! You are @ on the grid.")
-    print("Collect all the $ to win!")
-
-    # Spawn the first collectible
-    spawn_collectible()
-
-    # Spawn the hazard
-    spawn_hazard()
+def play_round() -> str | None:
+    """Run a single round of the game. Returns 'win', 'lose', or None (quit)."""
+    reset_game()
 
     while True:
         # Clear the screen
@@ -123,8 +126,7 @@ def main() -> None:
         command = input(">> ")
 
         if command == "q":
-            print("Thanks for playing!")
-            break
+            return None
         elif command in ("w", "a", "s", "d"):
             move(command)
 
@@ -133,7 +135,7 @@ def main() -> None:
                 draw_grid()
                 print()
                 print("Game Over!")
-                break
+                return "lose"
 
             check_collect()
 
@@ -144,7 +146,29 @@ def main() -> None:
                 print(f"Score: {score} / {WIN_SCORE}")
                 print()
                 print("You win! All collectibles gathered!")
-                break
+                return "win"
+
+
+def main() -> None:
+    """Main game loop with play again support."""
+    print("Welcome! You are @ on the grid.")
+    print("Collect all the $ to win! Avoid the X hazards!")
+    print()
+
+    while True:
+        result = play_round()
+
+        if result is None:
+            print("Thanks for playing!")
+            break
+
+        # Ask to play again
+        print()
+        answer = input("Play again? (y/n) ")
+
+        if answer != "y":
+            print("Thanks for playing!")
+            break
 
 
 if __name__ == "__main__":
