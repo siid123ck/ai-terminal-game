@@ -1,5 +1,5 @@
 """
-A basic text-based game with a 5x5 grid.
+Cyber Chase — A neon-lit grid adventure.
 """
 
 import os
@@ -10,6 +10,15 @@ GRID_SIZE = 5
 
 # Win condition
 WIN_SCORE = 10
+
+# Game skin
+GAME_NAME = "Cyber Chase"
+STORY_INTRO = "In the neon depths of the Grid, a rogue 🐉 hunts for lost 🪙 — but 🦠 lurk in every shadow."
+PLAYER_EMOJI = "🐉"
+COLLECT_EMOJI = "🪙"
+HAZARD_EMOJI = "🦠"
+WIN_MESSAGE = "The 🐉 hoards its treasure! The Grid bows to its champion!"
+LOSE_MESSAGE = "The 🦠 consumed the 🐉! The Grid reclaims its lost souls..."
 
 # Player starting position (row, column)
 player_row = 0
@@ -70,13 +79,13 @@ def draw_grid() -> None:
         row_str = ""
         for col in range(GRID_SIZE):
             if row == player_row and col == player_col:
-                row_str += "@ "
+                row_str += f"{PLAYER_EMOJI} "
             elif row == collect_row and col == collect_col:
-                row_str += "$ "
+                row_str += f"{COLLECT_EMOJI} "
             elif row == hazard_row and col == hazard_col:
-                row_str += "X "
+                row_str += f"{HAZARD_EMOJI} "
             else:
-                row_str += ". "
+                row_str += "· "
         print(f"{row} {row_str}")
 
 
@@ -118,7 +127,7 @@ def play_round() -> str | None:
 
         draw_grid()
         print()
-        print(f"Score: {score} / {WIN_SCORE}")
+        print(f"{COLLECT_EMOJI} Collected: {score} / {WIN_SCORE}")
         print()
         print("WASD to move, Q to quit")
 
@@ -134,7 +143,7 @@ def play_round() -> str | None:
                 os.system("clear")
                 draw_grid()
                 print()
-                print("Game Over!")
+                print(LOSE_MESSAGE)
                 return "lose"
 
             check_collect()
@@ -143,23 +152,24 @@ def play_round() -> str | None:
                 os.system("clear")
                 draw_grid()
                 print()
-                print(f"Score: {score} / {WIN_SCORE}")
+                print(f"{COLLECT_EMOJI} Collected: {score} / {WIN_SCORE}")
                 print()
-                print("You win! All collectibles gathered!")
+                print(WIN_MESSAGE)
                 return "win"
 
 
 def main() -> None:
     """Main game loop with play again support."""
-    print("Welcome! You are @ on the grid.")
-    print("Collect all the $ to win! Avoid the X hazards!")
+    print(f"=== {GAME_NAME} ===")
+    print()
+    print(STORY_INTRO)
     print()
 
     while True:
         result = play_round()
 
         if result is None:
-            print("Thanks for playing!")
+            print("The 🐉 retreats to the shadows...")
             break
 
         # Ask to play again
@@ -167,7 +177,7 @@ def main() -> None:
         answer = input("Play again? (y/n) ")
 
         if answer != "y":
-            print("Thanks for playing!")
+            print("The 🐉 retreats to the shadows...")
             break
 
 

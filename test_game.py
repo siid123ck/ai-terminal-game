@@ -1,9 +1,14 @@
 """
-Tests for the game grid, movement, collectibles, hazards, and scoring.
+Tests for the Cyber Chase game grid, movement, collectibles, hazards, scoring, and skin.
 """
 
 import game
-from game import GRID_SIZE, WIN_SCORE, move, spawn_collectible, check_collect, spawn_hazard, check_hazard
+from game import (
+    GRID_SIZE, WIN_SCORE,
+    GAME_NAME, STORY_INTRO, PLAYER_EMOJI, COLLECT_EMOJI, HAZARD_EMOJI,
+    WIN_MESSAGE, LOSE_MESSAGE,
+    move, spawn_collectible, check_collect, spawn_hazard, check_hazard,
+)
 
 
 def reset_game() -> None:
@@ -15,7 +20,7 @@ def reset_game() -> None:
     spawn_hazard()
 
 
-# --- Grid tests ---
+# --- Grid & constants tests ---
 
 def test_grid_size_is_five() -> None:
     """Verify the grid is 5x5."""
@@ -25,6 +30,43 @@ def test_grid_size_is_five() -> None:
 def test_win_score_is_ten() -> None:
     """Win condition should be 10."""
     assert WIN_SCORE == 10
+
+
+# --- Skin tests ---
+
+def test_game_name_is_set() -> None:
+    """Game name should be defined."""
+    assert isinstance(GAME_NAME, str) and len(GAME_NAME) > 0
+
+
+def test_story_intro_is_set() -> None:
+    """Story intro should be defined."""
+    assert isinstance(STORY_INTRO, str) and len(STORY_INTRO) > 0
+
+
+def test_player_emoji_is_set() -> None:
+    """Player emoji should be defined."""
+    assert isinstance(PLAYER_EMOJI, str) and len(PLAYER_EMOJI) > 0
+
+
+def test_collect_emoji_is_set() -> None:
+    """Collectible emoji should be defined."""
+    assert isinstance(COLLECT_EMOJI, str) and len(COLLECT_EMOJI) > 0
+
+
+def test_hazard_emoji_is_set() -> None:
+    """Hazard emoji should be defined."""
+    assert isinstance(HAZARD_EMOJI, str) and len(HAZARD_EMOJI) > 0
+
+
+def test_win_message_is_set() -> None:
+    """Win message should be defined."""
+    assert isinstance(WIN_MESSAGE, str) and len(WIN_MESSAGE) > 0
+
+
+def test_lose_message_is_set() -> None:
+    """Lose message should be defined."""
+    assert isinstance(LOSE_MESSAGE, str) and len(LOSE_MESSAGE) > 0
 
 
 # --- Player starting position tests ---
@@ -149,7 +191,6 @@ def test_check_collect_respawns_collectible() -> None:
     game.collect_row = 3
     game.collect_col = 3
     check_collect()
-    # Collectible should no longer be at (3, 3)
     assert (game.collect_row, game.collect_col) != (3, 3)
 
 
@@ -234,12 +275,9 @@ def test_reset_game_resets_score() -> None:
 def test_reset_game_respawns_collectible() -> None:
     """reset_game should spawn the collectible at a new position."""
     reset_game()
-    old_pos = (game.collect_row, game.collect_col)
-    # Move player away and force a different collectible position
     game.player_row = 4
     game.player_col = 4
     reset_game()
-    # Collectible should be spawned (not stuck at a bad position)
     assert 0 <= game.collect_row < GRID_SIZE
     assert 0 <= game.collect_col < GRID_SIZE
 
@@ -250,6 +288,5 @@ def test_reset_game_respawns_hazard() -> None:
     game.player_row = 4
     game.player_col = 4
     reset_game()
-    # Hazard should be spawned within bounds
     assert 0 <= game.hazard_row < GRID_SIZE
     assert 0 <= game.hazard_col < GRID_SIZE
